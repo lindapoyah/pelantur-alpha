@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox
 from pydub import AudioSegment
 import subprocess
 import os
+import glob
 
 voice_path=""
 music_path=""
@@ -44,6 +45,25 @@ def choose_output_folder():
 def get_audio_duration(file):
     audio=AudioSegment.from_file(file)
     return len(audio)/1000
+
+def cleanup_temp_files():
+    try:
+        for f in glob.glob("temp_*.mp4"):
+            os.remove(f)
+
+        temp_files=[
+            "concat.txt",
+            "images.txt",
+            "slideshow.mp4",
+            "audio_mix.m4a"
+        ]
+
+        for f in temp_files:
+            if os.path.exists(f):
+                os.remove(f)
+
+    except:
+        pass
 
 def render_video():
 
@@ -156,14 +176,19 @@ def render_video():
 
         subprocess.run(cmd_final,check=True)
 
+        cleanup_temp_files()
+
         messagebox.showinfo("Success","Video berhasil dibuat!")
 
     except subprocess.CalledProcessError:
+
+        cleanup_temp_files()
+
         messagebox.showerror("Error","FFmpeg gagal render video")
 
 root=tk.Tk()
 root.title("Pelantur Beta - Software YTTA by mbombinx")
-root.geometry("640x400")
+root.geometry("640x320")
 
 main=tk.Frame(root)
 main.pack(pady=20)
@@ -183,12 +208,12 @@ imf=tk.Frame(left);imf.pack(anchor="w")
 images_entry=tk.Entry(imf,width=30);images_entry.pack(side="left")
 tk.Button(imf,text="Upload",command=upload_images).pack(side="left")
 
-tk.Label(left,text="Upload Music").pack(anchor="w",pady=(10,0))
+tk.Label(left,text="Upload Background Music").pack(anchor="w",pady=(10,0))
 mf=tk.Frame(left);mf.pack(anchor="w")
 music_entry=tk.Entry(mf,width=30);music_entry.pack(side="left")
 tk.Button(mf,text="Upload",command=upload_music).pack(side="left")
 
-tk.Label(left,text="Music Volume").pack(pady=(20,0))
+tk.Label(left,text="Background Music Volume").pack(pady=(20,0))
 music_volume_slider=tk.Scale(left,from_=0,to=2,resolution=0.1,orient="horizontal")
 music_volume_slider.set(0.5)
 music_volume_slider.pack()
@@ -198,15 +223,15 @@ right.pack(side="left",padx=40)
 
 tk.Label(right,text="OUTPUT SETTINGS",font=("Arial",14,"bold")).pack(anchor="w")
 
-tk.Label(right,text="Nama File Output").pack(anchor="w")
+tk.Label(right,text="Output File Name").pack(anchor="w")
 output_name_entry=tk.Entry(right,width=40)
 output_name_entry.pack()
 
-tk.Label(right,text="Folder Output").pack(anchor="w",pady=(10,0))
+tk.Label(right,text="Output Folder").pack(anchor="w",pady=(10,0))
 ff=tk.Frame(right);ff.pack(anchor="w")
 output_folder_entry=tk.Entry(ff,width=30)
 output_folder_entry.pack(side="left")
-tk.Button(ff,text="Pilih",command=choose_output_folder).pack(side="left")
+tk.Button(ff,text="Browse",command=choose_output_folder).pack(side="left")
 
 tk.Button(
 right,
